@@ -1,0 +1,47 @@
+/* 	Audio camera trigger by Matt Richardson
+        Riedited by ON50MM BLOG FOTOGRAFICO Http://On50mm.blogspot.com
+        
+	This is a basic sound-detecting camera & flash trigger for Arduino.
+	Use an electret microphone like sound sensor
+	Use opto isolators (aka optocouplers) for the flash and camera triggers
+	Camera must be in BULB mode for shutter release to work
+*/
+ 
+#define BUTTON_PIN 5          // qui definiamo le disposizioni dei pin
+#define CAM_TRIGGER_PIN 9
+#define FLASH_TRIGGER_PIN 8
+#define SENSOR_PIN 0
+#define STANDBY 0             // vengono definite alcune variabili
+#define ACTIVE 1
+#define SENSOR_THRESHOLD 0
+ 
+int mode = STANDBY;    // L'apparecchio è in attesa
+ 
+// Per i migliori risultati imposta il flashdelay (ritardo flash) in base al tipo 
+// di foto che stai facendo. 0 sembra l'ideale per scoppi di palloni
+// 10 invece sembra adatto quando si rompe il vetro, valuta caso per caso.
+long flashDelayMS = 10;
+ 
+void setup() {
+	pinMode(BUTTON_PIN, INPUT);
+	pinMode(CAM_TRIGGER_PIN, OUTPUT);
+	pinMode(FLASH_TRIGGER_PIN, OUTPUT);
+        analogRead(SENSOR_PIN);    // Facciamo fare una lettura a vuoto per assestare l'ADC
+}
+ 
+void loop() {
+	if (digitalRead(BUTTON_PIN) == HIGH) // Se il bottone è premuto allora fai partire la reflex
+	{
+		mode = ACTIVE;
+		digitalWrite(CAM_TRIGGER_PIN, HIGH); // si apre l'otturatore e inizia lo scatto BULB
+	}
+	if ((mode == ACTIVE) && (analogRead(SENSOR_PIN) > SENSOR_THRESHOLD)) //
+	{ //se il bottone è stato premuto e il suono che si sente è maggiore della soglia impostata:
+		delay(flashDelayMS);
+		digitalWrite(FLASH_TRIGGER_PIN, HIGH); // Lampeggia il flash
+		delay(50);
+		digitalWrite(FLASH_TRIGGER_PIN, LOW);
+		digitalWrite(CAM_TRIGGER_PIN, LOW); // Si chiude l'otturatore
+		mode = STANDBY;   // Torna in standby
+	}
+}
