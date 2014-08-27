@@ -1,47 +1,50 @@
 /* 	Audio camera trigger by Matt Richardson
-        Riedited by ON50MM BLOG FOTOGRAFICO Http://On50mm.blogspot.com
-        
-	This is a basic sound-detecting camera & flash trigger for Arduino.
-	Use an electret microphone like sound sensor
-	Use opto isolators (aka optocouplers) for the flash and camera triggers
 	Camera must be in BULB mode for shutter release to work
+
+        Modificato dal blog Http://on50mm.blogspot.com
 */
- 
-#define BUTTON_PIN 5          // qui definiamo le disposizioni dei pin
-#define CAM_TRIGGER_PIN 9
-#define FLASH_TRIGGER_PIN 8
-#define SENSOR_PIN 0
-#define STANDBY 0             // vengono definite alcune variabili
+
+#define BUTTON_PIN 5  //pin a cui è collegato il bottone
+#define CAM_TRIGGER_PIN 11  //pin a cui è collegato optois. reflex
+#define FLASH_TRIGGER_PIN 12  //pin a cui è collegato optois. flash
+#define SENSOR_PIN 0  //pin a cui è collegato A0 del sensore suono
+#define STANDBY 0
 #define ACTIVE 1
-#define SENSOR_THRESHOLD 0
- 
-int mode = STANDBY;    // L'apparecchio è in attesa
- 
-// Per i migliori risultati imposta il flashdelay (ritardo flash) in base al tipo 
-// di foto che stai facendo. 0 sembra l'ideale per scoppi di palloni
-// 10 invece sembra adatto quando si rompe il vetro, valuta caso per caso.
-long flashDelayMS = 10;
- 
+
+int SOGLIA;
+int mode = STANDBY;
+
+// For best results, set flashDelayMS according to what type
+// of shot you're doing. 0 seems best for balloon burst while
+// 10 seems best for shattering glass. YMMV.
+long flashDelayMS = 10;  
+
 void setup() {
-	pinMode(BUTTON_PIN, INPUT);
-	pinMode(CAM_TRIGGER_PIN, OUTPUT);
-	pinMode(FLASH_TRIGGER_PIN, OUTPUT);
-        analogRead(SENSOR_PIN);    // Facciamo fare una lettura a vuoto per assestare l'ADC
+        analogRead(SENSOR_PIN);
+        pinMode(BUTTON_PIN, INPUT);  //button pin è dichiarato input digitale
+	pinMode(CAM_TRIGGER_PIN, OUTPUT);  //button pin è dichiarato output digitale
+	pinMode(FLASH_TRIGGER_PIN, OUTPUT);  //button pin è dichiarato output digitale
+	delay(3000); //aspetta 3 secondi, il tempo di sistemarvi in posizione
+	SOGLIA = analogRead(SENSOR_PIN) + 100;  //viene letto il rumore ambiente e impostato come base
+                                           //per dare un po' di tolleranza la soglia è aumentata di 100
 }
- 
+
+
 void loop() {
-	if (digitalRead(BUTTON_PIN) == HIGH) // Se il bottone è premuto allora fai partire la reflex
+	if (digitalRead(BUTTON_PIN) == HIGH)  //se il bottone è premuto...allora...:
 	{
-		mode = ACTIVE;
-		digitalWrite(CAM_TRIGGER_PIN, HIGH); // si apre l'otturatore e inizia lo scatto BULB
+		mode = ACTIVE;  //...entra in modo attivo
+		digitalWrite(CAM_TRIGGER_PIN, HIGH); // ...apri l'otturatore della reflex
 	}
-	if ((mode == ACTIVE) && (analogRead(SENSOR_PIN) > SENSOR_THRESHOLD)) //
-	{ //se il bottone è stato premuto e il suono che si sente è maggiore della soglia impostata:
-		delay(flashDelayMS);
-		digitalWrite(FLASH_TRIGGER_PIN, HIGH); // Lampeggia il flash
-		delay(50);
-		digitalWrite(FLASH_TRIGGER_PIN, LOW);
-		digitalWrite(CAM_TRIGGER_PIN, LOW); // Si chiude l'otturatore
-		mode = STANDBY;   // Torna in standby
+	if ((mode == ACTIVE) && (analogRead(SENSOR_PIN) > SOGLIA))   
+	{ //se siamo in modo attivo e viene riconosciuto un rumore...allora...:
+		delay(flashDelayMS); //aspetta il ritardo flash
+		digitalWrite(FLASH_TRIGGER_PIN, HIGH); // lampeggia il flash
+		delay(50);  // il segnale del lampo dura 50 millisecondi
+		digitalWrite(FLASH_TRIGGER_PIN, LOW);  // termina il segnale del flash  
+		digitalWrite(CAM_TRIGGER_PIN, LOW); // chiudi otturatore reflex
+		mode = STANDBY;  // torna in modalità standby
+	
 	}
+delay(1000); //aspetta 1 secondo, poi ricomincia
 }
