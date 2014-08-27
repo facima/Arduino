@@ -5,8 +5,8 @@
 */
 
 #define BUTTON_PIN 5  //pin a cui è collegato il bottone
-#define CAM_TRIGGER_PIN 11  //pin a cui è collegato optois. reflex
-#define FLASH_TRIGGER_PIN 12  //pin a cui è collegato optois. flash
+#define CAM_TRIGGER_PIN 9  //pin a cui è collegato optois. reflex
+#define FLASH_TRIGGER_PIN 8  //pin a cui è collegato optois. flash
 #define SENSOR_PIN 0  //pin a cui è collegato A0 del sensore suono
 #define STANDBY 0
 #define ACTIVE 1
