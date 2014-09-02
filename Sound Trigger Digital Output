@@ -1,0 +1,49 @@
+/* 	Audio camera trigger by Matt Richardson
+	Camera must be in BULB mode for shutter release to work
+
+
+        Modificato dal blog Http://on50mm.blogspot.com
+        Utilizza un sensore suono con output digitale D0
+*/
+
+#define BUTTON_PIN 8  //pin a cui è collegato il bottone
+#define CAM_TRIGGER_PIN 7  //pin a cui è collegato optois. reflex
+#define FLASH_TRIGGER_PIN 6  //pin a cui è collegato optois. flash
+#define SENSOR_PIN 5  //pin a cui è collegato A0 del sensore suono
+#define STANDBY 0
+#define ACTIVE 1
+
+int mode = STANDBY;
+
+// For best results, set flashDelayMS according to what type
+// of shot you're doing. 0 seems best for balloon burst while
+// 10 seems best for shattering glass. YMMV.
+long flashDelayMS = 10;  
+
+void setup() {
+        pinMode(SENSOR_PIN, INPUT);
+        pinMode(BUTTON_PIN, INPUT);  //button pin è dichiarato input digitale
+	pinMode(CAM_TRIGGER_PIN, OUTPUT);  //button pin è dichiarato output digitale
+	pinMode(FLASH_TRIGGER_PIN, OUTPUT);  //button pin è dichiarato output digitale
+	delay(3000); //aspetta 3 secondi, il tempo di sistemarvi in posizione
+	}
+
+
+void loop() {
+	if (digitalRead(BUTTON_PIN) == HIGH)  //se il bottone è premuto...allora...:
+	{
+		mode = ACTIVE;  //...entra in modo attivo
+		digitalWrite(CAM_TRIGGER_PIN, HIGH); // ...apri l'otturatore della reflex
+	}
+	if ((mode == ACTIVE) && (digitalRead(SENSOR_PIN) == HIGH))   
+	{ //se siamo in modo attivo e viene riconosciuto un rumore...allora...:
+		delay(flashDelayMS); //aspetta il ritardo flash
+		digitalWrite(FLASH_TRIGGER_PIN, HIGH); // lampeggia il flash
+		delay(50);  // il segnale del lampo dura 50 millisecondi
+		digitalWrite(FLASH_TRIGGER_PIN, LOW);  // termina il segnale del flash  
+		digitalWrite(CAM_TRIGGER_PIN, LOW); // chiudi otturatore reflex
+		mode = STANDBY;  // torna in modalità standby
+	
+	}
+delay(5000); //aspetta 5 secondi, poi ricomincia
+}
