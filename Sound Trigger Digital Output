@@ -25,7 +25,7 @@ void setup() {
         pinMode(BUTTON_PIN, INPUT);  //button pin è dichiarato input digitale
 	pinMode(CAM_TRIGGER_PIN, OUTPUT);  //button pin è dichiarato output digitale
 	pinMode(FLASH_TRIGGER_PIN, OUTPUT);  //button pin è dichiarato output digitale
-	delay(3000); //aspetta 3 secondi, il tempo di sistemarvi in posizione
+	
 	}
 
 
@@ -34,8 +34,9 @@ void loop() {
 	{
 		mode = ACTIVE;  //...entra in modo attivo
 		digitalWrite(CAM_TRIGGER_PIN, HIGH); // ...apri l'otturatore della reflex
+
 	}
-	if ((mode == ACTIVE) && (digitalRead(SENSOR_PIN) == HIGH))   
+	if ((mode == ACTIVE) && (digitalRead(SENSOR_PIN) == LOW))   
 	{ //se siamo in modo attivo e viene riconosciuto un rumore...allora...:
 		delay(flashDelayMS); //aspetta il ritardo flash
 		digitalWrite(FLASH_TRIGGER_PIN, HIGH); // lampeggia il flash
@@ -45,5 +46,4 @@ void loop() {
 		mode = STANDBY;  // torna in modalità standby
 	
 	}
-delay(5000); //aspetta 5 secondi, poi ricomincia
 }
