@@ -33,6 +33,7 @@ void loop() {
 	if (digitalRead(BUTTON_PIN) == HIGH)  //se il bottone è premuto...allora...:
 	{
 		mode = ACTIVE;  //...entra in modo attivo
+		delay(5000); // 5 secondi di tempo per posizionarsi dopo aver premuto il pulsante
 		digitalWrite(CAM_TRIGGER_PIN, HIGH); // ...apri l'otturatore della reflex
 
 	}
