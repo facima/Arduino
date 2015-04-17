@@ -1,0 +1,63 @@
+//Trigger SUONO - LUCE - PIR - LASER
+// A cura di : On50mm Blog Fotografico 
+// http://on50mm.it
+          
+//Mettere reflex in modalità BULB dopo aver messo a fuoco già la scena (fuoco manuale).
+          
+const int LDR = 0;                 // pin analogico LDR
+const int led = 2;                 // pin digitale led
+const int bottone = 3;             // pin digitale bottone
+
+const int outpin = 10;              // pin comando reflex
+const int flashpin = 9;           // pin comando flash
+
+byte RitardoLettura = 5;           // impostare qui il tempo di ritardo per la lettura sensore in secondi
+int soglia = 100;                  // soglia per il laser, più si aumenta il numero più si aumenta la sensibilità
+byte caduta = 50;                  // ritardo tra goccia che interrompe laser e goccia che si schianta
+boolean calibrazione = 0;
+int Calibra = 0;
+
+void setup() {
+  pinMode(outpin, OUTPUT);
+  pinMode(led, OUTPUT);
+  pinMode(flashpin, OUTPUT);
+  pinMode(bottone, INPUT); 
+ }
+
+void loop(){
+if (calibrazione == 0){
+    boolean reading = digitalRead(bottone);  // controllo, il bottone è premuto?
+    if (reading == HIGH) {    //se il bottone risulta premuto         
+        digitalWrite(led, HIGH);
+        delay(100);                    // prima della calibrazione il led lampeggia una volta
+        digitalWrite(led, LOW); 
+        delay (RitardoLettura * 1000); 
+        Calibra = analogRead(LDR);
+        delay(100);        
+        digitalWrite(led, HIGH);       // dopo aver calibrato lampeggia il led 2 volte
+        delay(100);
+        digitalWrite(led, LOW);
+        delay(100);        
+        digitalWrite(led, HIGH);
+        delay(100);
+        digitalWrite(led, LOW);
+        
+        calibrazione = 1;
+        }      
+ }
+ 
+  int Lettura = analogRead(LDR);
+  if(calibrazione ==1 && Lettura < (Calibra - soglia)){
+  delay(caduta);
+  digitalWrite(outpin, HIGH);                 // ...apri l'otturatore della reflex
+  delay(50);
+  digitalWrite(flashpin, HIGH);              // lampeggia il flash
+  delay(50);
+  digitalWrite(flashpin, LOW);              // termina il segnale del flash
+  digitalWrite(outpin, LOW);                // chiudi otturatore reflex 
+    
+  delay(5000);            // tra 5s puoi provare nuovamente
+  }
+}
+
+  
